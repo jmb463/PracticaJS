@@ -1,0 +1,84 @@
+1. List for each user: code, the amount of activities and the total amount of dues they have paid.
+Answer:
+
+2. Display the user who made the largest payment sum. You must also show this amount.
+Answer:
+
+3. Change the town name of member number A2222. He changed to the town of LLUCMAJOR.
+Answer: UPDATE users
+	SET city='LLUCMAJOR'
+	WHERE membership_number = 'A2222';
+
+4. Display the total payments made for users from MANACOR.
+Answer: SELECT SUM(payment.dues) AS sumDues
+	FROM payment
+	INNER JOIN users
+	ON (payment.user_code = users.membership_number)
+	GROUP BY city
+	HAVING city = 'MANACOR';
+
+5. Show the largest dues that have paid each user.
+Answer:
+
+6. List the membership number and the name of the users who don't do any activity.
+Answer: SELECT name, membership_number
+	FROM   users 
+	WHERE  membership_number NOT IN (SELECT user_code FROM user_activities);
+
+
+7. Make a list of users ordered by the month of their date of registration.
+Answer: SELECT membership_number,name,date_of_registration FROM users
+	ORDER BY date_of_registration;
+
+
+8. List user's name and dues (payment table) greater than or equal to 8000 from the user with code: A2222.
+Answer: SELECT name, dues
+	FROM payment JOIN users 
+	ON (payment.user_code = users.membership_number)
+	WHERE payment.dues >= 8000 AND membership_number = 'A2222'; 
+
+
+
+
+9. List the users who have made a payment in the current month (date must be taken from the system).
+Answer: SELECT membership_number, name
+	FROM users
+	INNER JOIN payment
+	ON users.membership_number = payment.user_code
+	WHERE month_number= to_char(sysdate,'MM');
+
+
+10. Pick a user from the previous exercise and list her/his code, the code of her/his activities, the date of registration, a description of each activity and the dues to be paid.
+Answer:
+
+11. Display the name of the user, the code of the activities and the date of registration to them with a date previous to the 24 September 2012.
+Answer: SELECT name,activity_code,users.date_of_registration 
+        FROM users JOIN user_activities
+        ON (user_activities.user_code = users.membership_number)
+        WHERE users.date_of_registration < '24/09/2012';
+
+
+12. Insert the payment from a non-existing customer. What happen? (Explain the meaning of the messages on the screen).
+Answer: Message: Error que empieza en la línea 1 del comando: INSERT INTO payment (USER_CODE, MONTH_NUMBER, DUES) VALUES ('Z468', 1, 5000)
+	Informe de error: Error SQL: ORA-02291: restricción de integridad (SYSTEM.FOREIGN_KEY_PAG_USU) violada - clave principal no encontrada 02291. 00000 - "integrity constraint (%s.%s) violated - parent key not found"
+	*Cause:    A foreign key value has no matching primary key value.
+	*Action:   Delete the foreign key or add a matching primary key.
+
+The message tell us that the first statement cannot be executed because the foreign key dont have a primary key that relations them and the virtual machine 
+proposes that we should delete the foreign key or add a primary key that is in relation with the foreign key, in the error report we can see the same thing that the 
+primary key is not found.
+
+13. Increase a 5% the dues of the activities that are less than a 15% to the dues average.
+Answer: UPDATE activities
+	SET dues = (dues + (dues*00.5))
+	where (dues+(dues*0.15)) < (SELECT AVG(dues) from activities);
+
+14. If you delete a user (users table), could you say if the rest of the data in the database concerning to this user is deleted? If the answer is yes, explain why. If the answer is not, explain what we should do in order to do that.
+Answer: The rest of the data is not deleated, for that to happen we need to remove all the constraints (Primary Keys, Foreign Keys) that is in relation with the
+row we want to remove, to fix that we could add a CASCADE statement when creating the tables or erasing all the constraints with the statement alter table and then
+we could deleate everything table by table.
+
+15. List the name of the user and the total of payments, provided they are greater than 30000.
+Answer: SELECT name,SUM(dues) AS Dues FROM payment JOIN users ON(users.membership_number= payment.user_code)
+	GROUP BY name
+	HAVING SUM(dues) > 30000;
